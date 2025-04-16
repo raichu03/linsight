@@ -28,26 +28,6 @@ body{
     overflow: hidden;
 }
 
-.sidebar.expanded{
-    width: 250px;
-}
-
-.sidebar.expanded .menu-button{
-    width: 70px;
-    height: 90px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.sidebar.expanded .menu-button .menu-img{
-    width: 26px;
-    height: 26px;
-    background-image: url('../assets/images/Menu.svg');
-    background-repeat: no-repeat;
-    background-size: cover;
-}
-
 .sidebar .menu-button{
     width: 70px;
     height: 90px;
@@ -68,21 +48,8 @@ body{
     cursor: pointer;
 }
 
-.sidebar.expanded .chat-box{
-    width: 70px;
-    height: 120px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.sidebar.expanded .chat-box .new-chat{
-    width: 28px;
-    height: 28px;
-    border-radius: 18px;
-    background-image: url('../assets/images/add_circle.svg');
-    background-repeat: no-repeat;
-    background-size: cover;
+.sidebar .chat-box .chatbox-container .new-chat-label{
+    display: none;
 }
 
 .sidebar .chat-box{
@@ -107,6 +74,57 @@ body{
     box-shadow: 0 0 2px 7px #32373D;
 }
 
+
+.sidebar.expanded{
+    width: 250px;
+}
+
+.sidebar.expanded .menu-button{
+    width: 70px;
+    height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar.expanded .menu-button .menu-img{
+    width: 26px;
+    height: 26px;
+    background-image: url('../assets/images/Menu.svg');
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.sidebar.expanded .chat-box{
+    width: 155px;
+    height: 120px;
+}
+
+.sidebar.expanded .chat-box .chatbox-container{
+    transition: width 0.2s ease;
+    background: #1B1C1D;
+    padding: 8px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+}
+
+.sidebar.expanded .chat-box .chatbox-container .new-chat-label{
+    display: inline;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.sidebar.expanded .chat-box .new-chat{
+    width: 28px;
+    height: 28px;
+    border-radius: 18px;
+    background-image: url('../assets/images/add_circle.svg');
+    background-repeat: no-repeat;
+    background-size: cover;
+}
 
 /*=== Main section ===*/
 main{
