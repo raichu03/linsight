@@ -33,12 +33,11 @@ body{
 }
 
 .sidebar.expanded .menu-button{
-    width: 100%;
+    width: 70px;
     height: 90px;
     display: flex;
     align-items: center;
-    justify-content: start;
-    padding-left: 25px;
+    justify-content: center;
 }
 
 .sidebar.expanded .menu-button .menu-img{
@@ -50,7 +49,7 @@ body{
 }
 
 .sidebar .menu-button{
-    width: 100%;
+    width: 70px;
     height: 90px;
     display: flex;
     align-items: center;
@@ -70,12 +69,11 @@ body{
 }
 
 .sidebar.expanded .chat-box{
-    width: 100%;
+    width: 70px;
     height: 120px;
     display: flex;
     align-items: center;
-    justify-content: start;
-    padding-left: 22px;
+    justify-content: center;
 }
 
 .sidebar.expanded .chat-box .new-chat{
@@ -88,7 +86,7 @@ body{
 }
 
 .sidebar .chat-box{
-    width: 100%;
+    width: 70px;
     height: 120px;
     display: flex;
     align-items: center;
