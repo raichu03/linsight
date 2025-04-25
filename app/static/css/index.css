@@ -101,7 +101,7 @@ body{
 }
 
 .sidebar.expanded .chat-box .chatbox-container{
-    transition: width 0.2s ease;
+    transition: width 0.3s ease;
     background: #1B1C1D;
     padding-top: 8px;
     padding-bottom: 8px;
