@@ -6,7 +6,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S',
-    filename='../logs/metadata.log'
+    filename='logs/metadata.log'
 )
 
 def extract_metadata(metadata_block: Optional[Match[str]]) -> Optional[Dict[str, str]]:

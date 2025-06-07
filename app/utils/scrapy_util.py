@@ -2,13 +2,13 @@ import logging
 from trafilatura import fetch_url, extract
 from trafilatura.downloads import add_to_compressed_dict, buffered_downloads, load_download_buffer
 
-from scrapy.parser import extract_from_html
+from .scraper import extract_from_html
 
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S',
-    filename='../logs/scrapy_util.log'
+    filename='logs/scrapy_util.log'
 )
 
 def scrape_web(urls: list):

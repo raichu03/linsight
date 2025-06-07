@@ -2,14 +2,14 @@ import re
 import logging
 from typing import Optional, Dict, Any
 
-from scrapy.metadata import extract_metadata
-from scrapy.textdata import extract_text
+from .metadata import extract_metadata
+from .textdata import extract_text
 
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S',
-    filename='../logs/parser.log'
+    filename='logs/parser.log'
 )
 
 def extract_from_html(response: str):
