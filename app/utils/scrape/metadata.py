@@ -1,6 +1,9 @@
 import re
 import logging
 from typing import Optional, Dict, Match
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve()
 
 logging.basicConfig(
     level=logging.INFO,

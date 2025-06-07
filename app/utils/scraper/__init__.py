@@ -1,1 +1,0 @@
-from .parser import extract_from_html

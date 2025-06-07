@@ -1,1 +1,0 @@
-from .scrapy_util import scrape_web

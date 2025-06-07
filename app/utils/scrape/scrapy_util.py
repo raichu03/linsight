@@ -2,7 +2,7 @@ import logging
 from trafilatura import fetch_url, extract
 from trafilatura.downloads import add_to_compressed_dict, buffered_downloads, load_download_buffer
 
-from .scraper import extract_from_html
+from .parser import extract_from_html
 
 logging.basicConfig(
     level=logging.INFO,
