@@ -1,9 +1,6 @@
 import re
 import logging
 from typing import Optional, Dict, Match
-from pathlib import Path
-
-BASE_DIR = Path(__file__).resolve()
 
 logging.basicConfig(
     level=logging.INFO,
@@ -77,5 +74,3 @@ def extract_metadata(metadata_block: Optional[Match[str]]) -> Optional[Dict[str,
         logging.info("Metadata block but no key-value pairs were extracted.")
         
     return metadata
-    
-    
