@@ -21,7 +21,7 @@ class VarSettings(BaseSettings):
     Settings for Google Customs Search API.
     Uses pydantic-settings for robust configuration form environment variables or .env file.
     """
-    serach_key: str = Field(..., description="Key for Google Custom Search API")
+    search_key: str = Field(..., description="Key for Google Custom Search API")
     search_id: str = Field(..., description="Custom Search Engine ID (cx) for Google Search")
     
     model_config = SettingsConfigDict(env_file='.env', extra='ignore')
@@ -30,12 +30,12 @@ class VarSettings(BaseSettings):
 #--- Constants and API Endpoint ---#
 Search_API_URL = 'https://www.googleapis.com/customsearch/v1'
 DEFAULT_MAX_RESULTS_PER_PAGE = 10
-DEFAULT_TOTAL_RESULTS_TO_FETCH = 100
+DEFAULT_TOTAL_RESULTS_TO_FETCH = 10
 DEFAULT_RETRY_ATTEMPTS = 3
 DEFAULT_RETRY_DEALY_SECONDS = 5
 
 #--- Core Search Functionlaity ---#
-def make_custom_search(query: str,) -> List[Dict[str, Any]]:
+def make_custom_search(query: str,) -> List:
     """
     Search Google Custom SEarch API for the given query and retrieves links.
     
@@ -46,17 +46,20 @@ def make_custom_search(query: str,) -> List[Dict[str, Any]]:
         A list of dictionaries, where each dictionary represents a searh results item.
     """
     
-    all_results: List[Dict[str, Any]] = []
+    all_results = []
+    all_links = []
     start_index = 1
     
     secrets = VarSettings()
+    print(secrets.search_id)
+    print(secrets.search_key)
     
     logging.info(f"Starting search for query: '{query}")
     
     while start_index <= DEFAULT_TOTAL_RESULTS_TO_FETCH:
         parms = {
             'q': query,
-            'key': secrets.serach_key,
+            'key': secrets.search_key,
             'cx': secrets.search_id,
             'start': start_index,
             'num': DEFAULT_MAX_RESULTS_PER_PAGE
@@ -71,16 +74,20 @@ def make_custom_search(query: str,) -> List[Dict[str, Any]]:
                 if 'items' in data:
                     current_page_results = data['items']
                     all_results.extend(current_page_results)
+                    
+                    for item in all_results:
+                        all_links.append(item['link'])
+                        
                     logging.info(f"Fetched {len(current_page_results)} results for start_index={start_index}")
                     
                     if len(current_page_results) < DEFAULT_MAX_RESULTS_PER_PAGE:
                         logging.info(f"Less than {DEFAULT_MAX_RESULTS_PER_PAGE} rsults returned, likely end of results.")
-                        return all_results
+                        return all_links
                 else:
                     logging.info(f"No 'items' found in response for start_index={start_index}.")
                     if 'error' in data:
                         logging.error(f"API Error: {data['error'].get('message', 'Unknown error')}")
-                    return all_results
+                    return all_links
                 
                 break
             except requests.exceptions.Timeout:
@@ -117,5 +124,5 @@ def make_custom_search(query: str,) -> List[Dict[str, Any]]:
         start_index += DEFAULT_MAX_RESULTS_PER_PAGE
 
     logging.info(f"Finished search. Total results fetched: {len(all_results)}")
-    return all_results
+    return all_links
             
