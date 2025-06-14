@@ -1,1 +1,2 @@
-from .summary import DocSummarizer
+from .gen_summary import DocSummarizer
+from .llm import LLMSummaryGenerator

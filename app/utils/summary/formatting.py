@@ -13,17 +13,12 @@ class SummaryFormat(BaseModel):
         ...,
         description="The main, concise title of the document or summarized content."
     )
-    definition: Optional[str] = Field(
-        None,
-        description="An optional, clear definition of a key concept, term, or entity relevant to the content. "
-                    "Only include if a specific definition is central to the understanding."
-    )
     introduction: str = Field(
         ...,
         description="An introductory section that sets the context, provides necessary background, "
                     "and briefly outlines the scope of the document. It should smoothly lead into the body."
     )
-    body: str = Field(
+    Description: str = Field(
         ...,
         description="The main content or detailed explanation of the subject matter. "
                     "This section should contain all primary information, arguments, or descriptions. "
