@@ -141,10 +141,12 @@ nav{
     height: 90px;
     display: flex;
     align-items: center;
-    justify-content: space-around;
+    justify-content: space-between;
+    padding-left: 32px;
+    padding-right: 32px;
     flex-direction: row;
     box-shadow: 0 2px 5px 1px #292929;
-    gap: 70%;   
+    box-sizing: border-box;
 }
 
 nav .logo-bar{
