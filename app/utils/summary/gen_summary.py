@@ -1,4 +1,3 @@
-import os
 import logging
 
 import ollama
@@ -112,8 +111,6 @@ class DocSummarizer:
             summary_content = response['message']['content'].strip()
             if not summary_content:
                 logging.warning("Ollama API returned an empty summary for the given document.")
-                # Depending on requirements, you might want to return an empty string,
-                # or raise an error if an empty summary is unacceptable.
                 return ""
             
             logging.info("Summary generated successfully.")
