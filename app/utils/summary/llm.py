@@ -1,8 +1,9 @@
 import json
 import logging
-from typing import Dict, Any, Optional
+import re
 
 import ollama
+from pydantic import ValidationError
 
 from .formatting import SummaryFormat
 
@@ -68,7 +69,7 @@ class LLMSummaryGenerator:
         
         logging.info(f"LLMSummaryGenerator initialized with model: {self.model_name}, temperature: {self.temperature}")
         
-    def generate_summary(self, context: str) -> SummaryFormat:
+    async def generate_summary(self, context: str) -> SummaryFormat:
         """
         Generates a structured summary from the given text context using Ollama.
 
@@ -84,6 +85,7 @@ class LLMSummaryGenerator:
         """
 
         prompt_message = SUMMARY_PROMPT.format(context=context)
+        full_response_content = ""
         
         try:
             logging.info(f"Attempting to generate summary using model: {self.model_name}")
@@ -92,27 +94,45 @@ class LLMSummaryGenerator:
                 messages=[
                     {'role': 'user', 'content': prompt_message}
                 ],
-                format=SummaryFormat.model_json_schema(),
-                options={'temperature': self.temperature}
+                # format=SummaryFormat.model_json_schema(),
+                options={'temperature': self.temperature},
+                stream=True
             )
-            logging.debug(f"Raw LLM response: {response_structured}")
+            
+            for chunks in response_structured:
+                if 'message' in chunks and 'content' in chunks['message']:
+                    partial_content = chunks['message']['content']
+                    if partial_content:
+                        full_response_content += partial_content
+                        yield f"event: message\ndata: {json.dumps({'type': 'text', 'content': partial_content})}\n\n"
+            
+            json_pattern = r'```json(.*?)```'
+            match = re.search(json_pattern, full_response_content, re.DOTALL)
+            
+            if not match:
+                logging.error("No JSON block found in the LLM response. Ensure the LLM is instructed to output JSON within ```json```.")
+                raise ValueError("No JSON block found in the LLM response. Ensure the LLM is instructed to output JSON within ```json```.")
 
-            if not response_structured or 'message' not in response_structured or 'content' not in response_structured['message']:
-                raise RuntimeError("LLM response is malformed or empty.")
-
-            llm_output_content = response_structured['message']['content']
-            logging.info("LLM response received. Attempting to parse with Pydantic.")
-
-            parsed_document = SummaryFormat.model_validate_json(llm_output_content)
-            logging.info("Summary successfully generated and validated.")
-            json_output = parsed_document.model_dump_json()
-            return json_output
-
+            json_str = match.group(1).strip()
+            try:
+                raw_data = json.loads(json_str)
+                final_summary = SummaryFormat(**raw_data)
+                yield f"event: done\ndata: {json.dumps({'type': 'final_summary', 'content': final_summary.model_dump()})}\n\n"
+            
+            except json.JSONDecodeError as e:
+                error_msg = f"Failed to decode JSON from LLM response: {e}. Raw JSON string: {json_str}"
+                logging.error(error_msg)
+                yield f"event: error\ndata: {json.dumps({"error": error_msg})}\n\n"
+            except ValidationError as e:
+                error_msg = f"Failed to validate LLM JSON output against SummaryFormat: {e}. Raw data: {raw_data}"
+                logging.error(error_msg)
+                yield f"event: error\ndata: {json.dumps({"error": error_msg})}\n\n"
+                
         except ollama.ResponseError as e:
             logging.error(f"Ollama API error: {e}")
             raise RuntimeError(f"Failed to get response from LLM due to API error: {e}") from e
         except json.JSONDecodeError as e:
-            logging.error(f"Failed to decode JSON from LLM response: {e}. Content: {llm_output_content}")
+            logging.error(f"Failed to decode JSON from LLM response: {e}. Content: {full_response_content}")
             raise RuntimeError(f"Failed to parse LLM response as JSON: {e}") from e
         except Exception as e:
             logging.critical(f"An unexpected error occurred during summary generation: {e}", exc_info=True)
