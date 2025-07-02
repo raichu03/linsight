@@ -1,11 +1,7 @@
 import json
 import logging
-import re
 
 import ollama
-from pydantic import ValidationError
-
-from .formatting import SummaryFormat
 
 logging.basicConfig(
     level=logging.INFO,
@@ -15,7 +11,8 @@ logging.basicConfig(
 )
 
 SUMMARY_PROMPT = """
-Please generate a well-structured document summary based on the provided text. Ensure the output is clear, detailed, and logically organized, covering all key points. Follow this structure:  
+Please generate a well-structured document summary based on the provided text. Ensure the output is clear, 
+detailed, and logically organized, covering all key points. Follow this structure:  
 
 1. **Title**  
    - A concise yet informative heading reflecting the main topic.  
@@ -69,15 +66,12 @@ class LLMSummaryGenerator:
         
         logging.info(f"LLMSummaryGenerator initialized with model: {self.model_name}, temperature: {self.temperature}")
         
-    async def generate_summary(self, context: str) -> SummaryFormat:
+    async def generate_summary(self, context: str):
         """
         Generates a structured summary from the given text context using Ollama.
 
         Args:
             context (str): The text document which needs to be summarized.
-
-        Returns:
-            SummaryFormat: A Pydantic model instance representing the structured summary.
 
         Raises:
             ValueError: If the context is empty or too short.
@@ -94,7 +88,6 @@ class LLMSummaryGenerator:
                 messages=[
                     {'role': 'user', 'content': prompt_message}
                 ],
-                # format=SummaryFormat.model_json_schema(),
                 options={'temperature': self.temperature},
                 stream=True
             )
@@ -105,28 +98,6 @@ class LLMSummaryGenerator:
                     if partial_content:
                         full_response_content += partial_content
                         yield f"event: message\ndata: {json.dumps({'type': 'text', 'content': partial_content})}\n\n"
-            
-            json_pattern = r'```json(.*?)```'
-            match = re.search(json_pattern, full_response_content, re.DOTALL)
-            
-            if not match:
-                logging.error("No JSON block found in the LLM response. Ensure the LLM is instructed to output JSON within ```json```.")
-                raise ValueError("No JSON block found in the LLM response. Ensure the LLM is instructed to output JSON within ```json```.")
-
-            json_str = match.group(1).strip()
-            try:
-                raw_data = json.loads(json_str)
-                final_summary = SummaryFormat(**raw_data)
-                yield f"event: done\ndata: {json.dumps({'type': 'final_summary', 'content': final_summary.model_dump()})}\n\n"
-            
-            except json.JSONDecodeError as e:
-                error_msg = f"Failed to decode JSON from LLM response: {e}. Raw JSON string: {json_str}"
-                logging.error(error_msg)
-                yield f"event: error\ndata: {json.dumps({"error": error_msg})}\n\n"
-            except ValidationError as e:
-                error_msg = f"Failed to validate LLM JSON output against SummaryFormat: {e}. Raw data: {raw_data}"
-                logging.error(error_msg)
-                yield f"event: error\ndata: {json.dumps({"error": error_msg})}\n\n"
                 
         except ollama.ResponseError as e:
             logging.error(f"Ollama API error: {e}")
