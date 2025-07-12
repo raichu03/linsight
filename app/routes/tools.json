@@ -1,0 +1,36 @@
+[
+    {
+        "type": "function",
+        "function": {
+            "name": "gen_query",
+            "description": "Call this tool when the user's question requires information that is outside of your existing knowledge or the current conversation context. Use this for general knowledge questions, current events, or anything that needs a web search to answer accurately.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query":{
+                        "type": "string",
+                        "description": "The detailed and specific search query to be used for a web search. This should be carefully crafted to yield the most relevant results for the user's question."
+                    }
+                },
+                "required": ["query"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "respond_directly",
+            "description": "Call this tool when you can fully answer the user's request without needing any external information or tools. This includes answering questions about yourself, summarizing past conversations, or providing information you already possess.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "final_answer": {
+                        "type": "string",
+                        "description": "The complete, natural language response to the user's request."
+                    }
+                },
+                "required": ["final_answer"]
+            }
+        }
+    }
+]

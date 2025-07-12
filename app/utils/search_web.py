@@ -1,4 +1,3 @@
-import os
 import requests
 import logging
 import time
@@ -51,8 +50,6 @@ def make_custom_search(query: str,) -> List:
     start_index = 1
     
     secrets = VarSettings()
-    print(secrets.search_id)
-    print(secrets.search_key)
     
     logging.info(f"Starting search for query: '{query}")
     

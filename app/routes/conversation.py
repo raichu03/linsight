@@ -1,5 +1,6 @@
 import sys
 import os
+import json
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, HTTPException, status
 from typing import Dict
@@ -8,6 +9,7 @@ import ollama
 import logging
 
 from models import tables, engine, SessionLocal
+from utils import gen_query
 
 #--- Logging Setup ---#
 logging.basicConfig(
@@ -23,6 +25,9 @@ router = APIRouter(
 )
 
 tables.Base.metadata.create_all(bind=engine)
+
+with open('routes/tools.json', 'r', encoding='utf-8') as file:
+    tool = json.load(file)
 
 def get_db():
     db = SessionLocal()
@@ -49,10 +54,8 @@ async def chat_endpoint(websocket: WebSocket, db: Session = Depends(get_db)):
         logging.info(f"New WebSocket connected. Conversation ID: {conversation_id}")
         
         while True:
-            # Receive user message
             data = await websocket.receive_text()
             
-            # --- Save User Message ---
             user_message = tables.Message(
                 conversation_id=conversation_id,
                 author="user",
@@ -72,13 +75,37 @@ async def chat_endpoint(websocket: WebSocket, db: Session = Depends(get_db)):
                 response_generator = ollama.chat(
                     model='llama3.2',
                     messages=ollama_messages,
-                    stream=True
+                    tools=tool,
                 )
-                for chunk in response_generator:
-                    content = chunk['message']['content']
-                    llm_response_content += content
-                    await websocket.send_text(content) # Send chunks back to the client
-
+                
+                if response_generator ['message'].get('tool_calls'):
+                    available_functions = {
+                        "gen_query": gen_query,
+                    }
+                    
+                    for tool_call in response_generator['message']['tool_calls']:
+                        function_name = tool_call['function']['name']
+                        function_args = tool_call['function']['arguments']
+                        
+                        if function_name == 'respond_directly':
+                            print("this is not the tool call")
+                            response = ollama.chat(
+                                model='llama3.2',
+                                messages=ollama_messages,
+                                stream=True
+                            )
+                            
+                            for chunk in response:
+                                content = chunk['message']['content']
+                                llm_response_content += content
+                                await websocket.send_text(content)
+                        
+                        elif function_name == 'gen_query':
+                            print("this is the tool call")
+                            function_to_call = available_functions[function_name]
+                            tool_output = function_to_call(**function_args)
+                            await websocket.send_text(tool_output)
+                            
             except ollama.ResponseError as e:
                 logging.error(f"Ollama API error for conversation {conversation_id}: {e}")
                 await websocket.send_text(f"Error from LLM: {e}")
