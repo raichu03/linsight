@@ -94,74 +94,74 @@ async def chat_endpoint(
         active_connections[websocket] = conversation_id
         logging.info(f"New WebSocket connected. Conversation ID: {conversation_id}")
         
-        # while True:
-        #     data = await websocket.receive_text()
+        while True:
+            data = await websocket.receive_text()
             
-        #     user_message = tables.Message(
-        #         conversation_id=conversation_id,
-        #         author="user",
-        #         description=data,
-        #         title=data[:50]
-        #     )
-        #     db.add(user_message)
-        #     db.commit()
-        #     chat_history = db.query(tables.Message).filter(
-        #         tables.Message.conversation_id == conversation_id
-        #     ).order_by(tables.Message.message_id).all()
+            user_message = tables.Message(
+                conversation_id=conversation_id,
+                author="user",
+                description=data,
+                title=data[:50]
+            )
+            db.add(user_message)
+            db.commit()
+            chat_history = db.query(tables.Message).filter(
+                tables.Message.conversation_id == conversation_id
+            ).order_by(tables.Message.message_id).all()
 
-        #     ollama_messages = [{'role': msg.author, 'content': msg.description} for msg in chat_history]
+            ollama_messages = [{'role': msg.author, 'content': msg.description} for msg in chat_history]
 
-        #     llm_response_content = ""
-        #     try:
-        #         response_generator = ollama.chat(
-        #             model='llama3.2',
-        #             messages=ollama_messages,
-        #             tools=tool,
-        #         )
+            llm_response_content = ""
+            try:
+                response_generator = ollama.chat(
+                    model='llama3.2',
+                    messages=ollama_messages,
+                    tools=tool,
+                )
                 
-        #         if response_generator ['message'].get('tool_calls'):
-        #             available_functions = {
-        #                 "gen_query": gen_query,
-        #             }
+                if response_generator ['message'].get('tool_calls'):
+                    available_functions = {
+                        "gen_query": gen_query,
+                    }
                     
-        #             for tool_call in response_generator['message']['tool_calls']:
-        #                 function_name = tool_call['function']['name']
-        #                 function_args = tool_call['function']['arguments']
+                    for tool_call in response_generator['message']['tool_calls']:
+                        function_name = tool_call['function']['name']
+                        function_args = tool_call['function']['arguments']
                         
-        #                 if function_name == 'respond_directly':
-        #                     print("this is not the tool call")
-        #                     response = ollama.chat(
-        #                         model='llama3.2',
-        #                         messages=ollama_messages,
-        #                         stream=True
-        #                     )
+                        if function_name == 'respond_directly':
+                            print("this is not the tool call")
+                            response = ollama.chat(
+                                model='llama3.2',
+                                messages=ollama_messages,
+                                stream=True
+                            )
                             
-        #                     for chunk in response:
-        #                         content = chunk['message']['content']
-        #                         llm_response_content += content
-        #                         await websocket.send_text(content)
+                            for chunk in response:
+                                content = chunk['message']['content']
+                                llm_response_content += content
+                                await websocket.send_text(content)
                         
-        #                 elif function_name == 'gen_query':
-        #                     print("this is the tool call")
-        #                     function_to_call = available_functions[function_name]
-        #                     tool_output = function_to_call(**function_args)
-        #                     await websocket.send_text(tool_output)
+                        elif function_name == 'gen_query':
+                            print("this is the tool call")
+                            function_to_call = available_functions[function_name]
+                            tool_output = function_to_call(**function_args)
+                            await websocket.send_text(tool_output)
                             
-        #     except ollama.ResponseError as e:
-        #         logging.error(f"Ollama API error for conversation {conversation_id}: {e}")
-        #         await websocket.send_text(f"Error from LLM: {e}")
-        #         continue
+            except ollama.ResponseError as e:
+                logging.error(f"Ollama API error for conversation {conversation_id}: {e}")
+                await websocket.send_text(f"Error from LLM: {e}")
+                continue
 
-        #     llm_message = tables.Message(
-        #         conversation_id=conversation_id,
-        #         author="assistant",
-        #         description=llm_response_content,
-        #         title="LLM Response" 
-        #     )
-        #     db.add(llm_message)
+            llm_message = tables.Message(
+                conversation_id=conversation_id,
+                author="assistant",
+                description=llm_response_content,
+                title="LLM Response" 
+            )
+            db.add(llm_message)
             
-        #     db.commit()
-        #     logging.info(f"Messages saved for conversation {conversation_id}")
+            db.commit()
+            logging.info(f"Messages saved for conversation {conversation_id}")
 
     except WebSocketDisconnect:
         if websocket in active_connections:
