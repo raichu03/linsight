@@ -7,7 +7,7 @@ Base = declarative_base()
 
 class Conversation(Base):
     __tablename__ = "conversations"
-    conversation_id = Column(Integer, primary_key=True, index=True)
+    conversation_id = Column(Integer, primary_key=True, index=True, autoincrement=False)
     title = Column(String, default="New Chat Session")
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, onupdate=func.now())
