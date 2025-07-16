@@ -94,6 +94,7 @@ async def chat_endpoint(
         
         while True:
             data = await websocket.receive_text()
+            print(data)
             
             user_message = tables.Message(
                 conversation_id=conversation_id,
