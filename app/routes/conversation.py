@@ -1,12 +1,10 @@
-import sys
-import os
 import json
-
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, HTTPException, status, Query
+import logging
 from typing import Dict
+
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, Query
 from sqlalchemy.orm import Session
 import ollama
-import logging
 
 from models import tables, engine, SessionLocal
 from utils import gen_query

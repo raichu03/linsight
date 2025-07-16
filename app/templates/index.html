@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="../static/css/side-bar.css">
     <link rel="stylesheet" href="../static/css/chat.css">
     <link rel="stylesheet" href="../static/css/navigation.css">
+    <link rel="stylesheet" href="../static/css/input.css">
 
 </head>
 <body>
@@ -32,45 +33,15 @@
         </nav>
         <section class="content-section">
             <div class="text-box">
-                <div class="container">
+                <div class="container" id="chat-container">
                     <div class="chat-box user">
-                        <p class="content">this is user content</p>
-                        <span>10:10 AM</span>
+                        <p class="content">test user</p>
+                        <span>11.22 AM</span>
                     </div>
 
                     <div class="chat-box system">
-                        <p class="content">this is system content</p>
-                        <span>10:11 AM</span>
-                    </div>
-
-                    <div class="chat-box user">
-                        <p class="content">this is user content</p>
-                        <span>10:10 AM</span>
-                    </div>
-
-                    <div class="chat-box system">
-                        <p class="content">this is system content</p>
-                        <span>10:11 AM</span>
-                    </div>
-
-                    <div class="chat-box user">
-                        <p class="content">this is user content</p>
-                        <span>10:10 AM</span>
-                    </div>
-
-                    <div class="chat-box system">
-                        <p class="content">this is system content</p>
-                        <span>10:11 AM</span>
-                    </div>
-
-                    <div class="chat-box user">
-                        <p class="content">this is user content</p>
-                        <span>10:10 AM</span>
-                    </div>
-
-                    <div class="chat-box system">
-                        <p class="content">this is system content</p>
-                        <span>10:11 AM</span>
+                        <p class="content">test system</p>
+                        <span>11.22 AM</span>
                     </div>
                 </div>
             </div>
@@ -79,7 +50,9 @@
                     <div class="input-text">
                         <textarea id="textarea" placeholder="Search anything"></textarea>
                     </div>
-                    <div class="input-button"></div>
+                    <div class="input-button">
+                        <div class="send-button" onclick="func_test()"></div>
+                    </div>
                 </div>
                 <div class="warning-field">
                     LLM might make mistakes, so check Important Information
@@ -90,5 +63,6 @@
 
 
     <script src="../static/js/index.js"></script>
+    <script src="../static/js/new_chat.js"></script>
 </body>
 </html>
