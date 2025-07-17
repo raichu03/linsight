@@ -142,6 +142,10 @@ async def chat_endpoint(
                                 content = chunk['message']['content']
                                 llm_response_content += content
                                 await websocket.send_text(content)
+                            
+                            await websocket.send_json({
+                                "type": "stream_end"
+                            }) 
                         
                         elif function_name == 'gen_query':
                             print("this is the tool call")
@@ -166,6 +170,10 @@ async def chat_endpoint(
                             
                             async for chunk in llm_generator.generate_summary(total_summary):
                                 await websocket.send_text(chunk)
+                            
+                            await websocket.send_json({
+                                "type": "stream_end"
+                            }) 
                             
             except ollama.ResponseError as e:
                 logging.error(f"Ollama API error for conversation {conversation_id}: {e}")

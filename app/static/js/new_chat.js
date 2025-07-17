@@ -24,13 +24,21 @@ class WebSocketChatClient {
         };
 
         this.socket.onmessage = (event) => {
-            const receivedData = event.data;
+            let receivedData = event.data;
             try {
                 const data = JSON.parse(receivedData);
-                this.onMessageCallback(data);
+                
+                if (data.type === 'stream_end'){
+                    receivedData = ''
+                    this.stream_end()
+                    
+                } else{
+                    this.onMessageCallback(data);
+                }
             } catch (error) {
                 this.onMessageCallback(receivedData);
             }
+
         };
 
         this.socket.onerror = (error) => {
@@ -45,6 +53,22 @@ class WebSocketChatClient {
                 this.onCloseCallback(event);
             }
         };
+    }
+
+    stream_end(){
+        const markdownElements = document.querySelectorAll('#markdownContent');
+
+        if (markdownElements.length > 0) {
+            const lastMarkdownElement = markdownElements[markdownElements.length - 1];
+
+            const markdown = lastMarkdownElement.textContent;
+            const html = marked.parse(markdown);
+
+            lastMarkdownElement.innerHTML = html;
+
+        } else {
+            console.log("No element with ID 'markdownContent' found.");
+        }
     }
 
     /**
@@ -133,6 +157,8 @@ class ChatUI {
 
         const content = document.createElement('p');
         content.className = 'content';
+        content.id = 'markdownContent'
+
         content.innerHTML = message.content.replace(/\n/g, '<br>');
 
         const time = document.createElement('span');
@@ -141,6 +167,7 @@ class ChatUI {
         chatBox.appendChild(content);
         chatBox.appendChild(time);
         this.chatContainer.appendChild(chatBox);
+
         this.scrollToBottom();
     }
 
@@ -207,7 +234,7 @@ function new_chat(){
         handleWebSocketClose
     );
 
-    const sendButton = document.getElementById('send-button'); // Assuming you have a send button
+    const sendButton = document.getElementById('send-button');
     if (sendButton) {
         sendButton.addEventListener('click', sendMessageFromUI);
     }
@@ -220,6 +247,13 @@ function new_chat(){
             }
         });
     }
+}
+
+function stream_end(){
+    const markdown = document.getElementById('markdownContent').value;
+    const html = marked.parse(markdown);
+    console.log(html)
+    document.getElementById('markdownContent').innerHTML = html;
 }
 
 function generateID(){
