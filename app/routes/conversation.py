@@ -7,7 +7,10 @@ from sqlalchemy.orm import Session
 import ollama
 
 from models import tables, engine, SessionLocal
-from utils import gen_query
+from utils import gen_query, make_custom_search, scrape_web, DocSummarizer, LLMSummaryGenerator
+
+summary = DocSummarizer()
+llm_generator = LLMSummaryGenerator()
 
 #--- Logging Setup ---#
 logging.basicConfig(
@@ -93,14 +96,14 @@ async def chat_endpoint(
         logging.info(f"New WebSocket connected. Conversation ID: {conversation_id}")
         
         while True:
-            data = await websocket.receive_text()
-            print(data)
+            user_message = await websocket.receive_text()
+            print(user_message)
             
             user_message = tables.Message(
                 conversation_id=conversation_id,
                 author="user",
-                description=data,
-                title=data[:50]
+                description=user_message,
+                title=user_message[:50]
             )
             db.add(user_message)
             db.commit()
@@ -144,7 +147,25 @@ async def chat_endpoint(
                             print("this is the tool call")
                             function_to_call = available_functions[function_name]
                             tool_output = function_to_call(**function_args)
-                            await websocket.send_text(tool_output)
+                            
+                            url_list = make_custom_search(tool_output)
+                            if not url_list:
+                                print("the list is empty")
+                                url_list = make_custom_search(function_args['query'])
+                            
+                            total_summary = ''
+                            contents_list = scrape_web(urls=url_list)
+                            
+                            print(url_list)
+                            
+                            for content in contents_list:
+                                text_summary = summary.summarize(content['texts'])
+                                total_summary += text_summary + '\n\n'
+                            
+                            print("Starting new generation")
+                            
+                            async for chunk in llm_generator.generate_summary(total_summary):
+                                await websocket.send_text(chunk)
                             
             except ollama.ResponseError as e:
                 logging.error(f"Ollama API error for conversation {conversation_id}: {e}")

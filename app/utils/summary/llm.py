@@ -79,7 +79,6 @@ class LLMSummaryGenerator:
         """
 
         prompt_message = SUMMARY_PROMPT.format(context=context)
-        full_response_content = ""
         
         try:
             logging.info(f"Attempting to generate summary using model: {self.model_name}")
@@ -96,8 +95,7 @@ class LLMSummaryGenerator:
                 if 'message' in chunks and 'content' in chunks['message']:
                     partial_content = chunks['message']['content']
                     if partial_content:
-                        full_response_content += partial_content
-                        yield f"event: message\ndata: {json.dumps({'type': 'text', 'content': partial_content})}\n\n"
+                        yield partial_content
                 
         except ollama.ResponseError as e:
             logging.error(f"Ollama API error: {e}")
