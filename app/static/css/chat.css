@@ -33,14 +33,12 @@ main .content-section .text-box .container{
     height: auto;
     display: flex;
     flex-direction: column;
-    gap: 15px;
     padding: 10px;
 }
 
 .chat-box {
     padding: 12px;
     max-width: 75%;
-    margin-bottom: 16px;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -61,6 +59,7 @@ main .content-section .text-box .container{
     max-width: 90%;
     color: #ffffff;
     align-self: flex-start;
+    padding-top: 20px;
 }
 
 .chat-box .content {
@@ -86,4 +85,13 @@ main .content-section .text-box .container{
 
 .chat-box.system span {
     align-self: flex-start;
+}
+
+/* this is new */
+.chat-box.thinking {
+    max-width: 90%;
+    color: #bfdbfe;
+    align-self: flex-start;
+    font-style: italic;
+    padding: none;
 }

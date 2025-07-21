@@ -49,16 +49,22 @@ class DocSummarizer:
             raise ValueError("Document text must be a non-empty string.")
 
         prompt = f"""
-        You are an expert extractive summarizer. Your task is to select and present the most important and representative sentences directly from the provided text.
-        **CRITICAL RULE: DO NOT REPHRASE, PARAPHRASE, OR ADD ANY NEW INFORMATION WHATSOEVER. EVERY WORD IN YOUR SUMMARY MUST BE A DIRECT QUOTE FROM THE ORIGINAL DOCUMENT.**
-        Select sentences that perfectly capture the core concepts, key arguments, and critical details.
-        Aim for a summary that is concise yet retains all essential information necessary for a comprehensive understanding of the original document.
-        Focus exclusively on factual accuracy and completeness of extracted facts.
+            You are an **expert extractive summarizer** with a critical mission: to identify and present the most significant and informative sentences **directly from the provided text**.
 
-        Document:
-        {document_text}
+            **ABSOLUTELY CRITICAL RULE: DO NOT REPHRASE, PARAPHRASE, OR INTRODUCE ANY NEW INFORMATION. EVERY SINGLE WORD IN YOUR SUMMARY MUST BE AN EXACT, UNALTERED QUOTE FROM THE ORIGINAL DOCUMENT.**
 
-        Extractive Summary:
+            Your selection process should prioritize sentences that:
+            * Clearly articulate **core concepts and central themes**.
+            * Contain **key arguments and supporting evidence**.
+            * Provide **critical details, facts, figures, or definitions**.
+            * Represent **important conclusions or outcomes**.
+
+            The goal is a summary that is as **concise as possible** while **retaining all essential, valuable information** needed for a comprehensive understanding of the original document. Focus intensely on **factual accuracy and the completeness of extracted facts**.
+
+            Document:
+            {document_text}
+
+            Extractive Summary:
         """
         return prompt.strip()
 

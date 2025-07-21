@@ -11,31 +11,44 @@ logging.basicConfig(
 )
 
 SUMMARY_PROMPT = """
-Please generate a well-structured document summary based on the provided text. Ensure the output is clear, 
-detailed, and logically organized, covering all key points. Follow this structure:  
+Please generate a comprehensive and meticulously structured document summary from the provided text. Your summary should not only capture the essence of the document but also provide insightful details, demonstrating a deep understanding of the content. Adhere strictly to the following hierarchical structure and guidelines:
 
-1. **Title**  
-   - A concise yet informative heading reflecting the main topic.  
+---
 
-2. **Introduction**  
-   - Briefly introduce the topic, its significance, and the main themes covered.  
-   - Mention any key questions or objectives addressed in the text.  
+### **1. Document Title**
+* Craft a precise and highly informative title that encapsulates the core subject matter and primary focus of the document. Consider using keywords from the text.
 
-3. **Description**  
-   - Break down the main ideas into logical sections (use subheadings if helpful).  
-   - Explain key points in detail, supporting them with relevant examples or evidence from the text.  
-   - If applicable, compare/contrast ideas or highlight cause-effect relationships.  
+### **2. Introduction & Contextualization**
+* **Topic & Significance:** Briefly introduce the main topic of the document, explaining its overall significance or relevance within its broader field.
+* **Purpose & Scope:** Clearly state the primary purpose of the original document and define the scope of the information it covers.
+* **Key Questions/Objectives:** Identify and articulate any central questions, problems, or objectives that the original document aims to address or explore.
+* **Main Arguments/Themes:** Provide a high-level overview of the most prominent arguments, themes, or concepts that will be elaborated upon in the subsequent sections.
 
-4. **Conclusion**  
-   - Summarize the core takeaways.  
-   - Mention any unresolved questions or implications for further discussion.  
+### **3. Detailed Analysis & Elaboration**
+* **Sectional Breakdown:** Divide the main body of the summary into logical, distinct sections, using descriptive subheadings that reflect the thematic organization of the original text.
+* **In-depth Explanation of Key Points:** For each section, meticulously explain the core ideas, concepts, and findings. Go beyond mere listing; provide sufficient detail to convey a thorough understanding.
+* **Supporting Evidence & Examples:** Integrate specific, concise examples, data points, or direct references from the provided text to substantiate your explanations. (e.g., "The document highlights 'X' as a critical factor, citing [specific example/data] to illustrate its impact.")
+* **Relationships & Nuances:** Explicitly identify and explain relationships between ideas, such as cause-and-effect, comparisons, contrasts, or problem-solution frameworks presented in the original document. Unpack any nuances or complexities in the arguments.
+* **Methodology/Approach (If Applicable):** If the original text describes a research study, analysis, or specific methodology, briefly explain its key components and their relevance to the findings.
 
-**Additional Guidelines:**  
-- Aim for a professional yet accessible tone.  
-- Use clear, concise language but ensure depth where needed.  
-- If the text is technical, simplify complex ideas without losing accuracy.  
+### **4. Concluding Insights & Implications**
+* **Synthesis of Core Takeaways:** Concisely synthesize the most critical insights, conclusions, or major findings presented in the document. What are the ultimate messages the document conveys?
+* **Unresolved Issues/Future Directions:** Discuss any questions that remain unanswered, limitations of the document's scope, or implications for future research, discussion, or action as suggested or implied by the text.
+* **Overall Significance/Impact:** Briefly reiterate the overall significance or potential impact of the document's content.
 
-**Text to Process:**  
+---
+
+### **Additional Guidelines for Excellence:**
+* **Tone & Style:** Maintain a highly professional, objective, and academic tone. Ensure the language is precise, clear, and avoids ambiguity.
+* **Clarity & Accessibility:** While providing depth, ensure complex ideas are presented in an accessible manner without sacrificing accuracy. Simplify technical jargon where appropriate, always retaining the original meaning.
+* **Conciseness with Detail:** Strive for a balance between conciseness and comprehensive detail. Every sentence should contribute meaningfully to the summary.
+* **Adherence to Original Intent:** Your summary must accurately reflect the original document's arguments, emphasis, and perspective without introducing external interpretations or biases.
+* **Avoid phrases like "The document provides an overview," which refer directly to the source text.
+* ** Avoid mentioning about the documents provided for for summarization, only write about the topic.
+
+---
+
+**Text to Process:**
 '{context}'
 """
 

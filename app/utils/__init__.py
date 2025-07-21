@@ -3,3 +3,4 @@ from .scrape import scrape_web
 from .summary import DocSummarizer
 from .summary import LLMSummaryGenerator
 from .generate_query import gen_query
+from .doc_reranker import DocReranker

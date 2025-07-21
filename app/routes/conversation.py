@@ -1,16 +1,18 @@
 import json
 import logging
 from typing import Dict
+import asyncio
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, Query
 from sqlalchemy.orm import Session
 import ollama
 
 from models import tables, engine, SessionLocal
-from utils import gen_query, make_custom_search, scrape_web, DocSummarizer, LLMSummaryGenerator
+from utils import gen_query, make_custom_search, scrape_web, DocSummarizer, LLMSummaryGenerator, DocReranker
 
 summary = DocSummarizer()
 llm_generator = LLMSummaryGenerator()
+reranker = DocReranker()
 
 #--- Logging Setup ---#
 logging.basicConfig(
@@ -63,7 +65,6 @@ async def chat_endpoint(
             if existing_conversation:
                 current_conversation_id = existing_conversation.conversation_id
                 logging.info(f"Reconnecting to existing conversation ID: {current_conversation_id}")
-                print(current_conversation_id)
                 user_message = db.query(tables.Message).filter(
                     tables.Message.conversation_id == current_conversation_id
                 ).order_by(tables.Message.message_id).all()
@@ -74,7 +75,6 @@ async def chat_endpoint(
                 })
             
             else:
-                print(conversation_id)
                 logging.info(f"Conversation ID {conversation_id} not found. Starting new conversation.")
                 new_conversation = tables.Conversation(
                     title="New Chat Session",
@@ -85,7 +85,6 @@ async def chat_endpoint(
                 db.refresh(new_conversation)
                 current_conversation_id = new_conversation.conversation_id
                 
-                # Optionally send a message to the client indicating a new session
                 await websocket.send_json({
                     "type": "new_session",
                     "conversation_id": current_conversation_id,
@@ -97,7 +96,6 @@ async def chat_endpoint(
         
         while True:
             user_message = await websocket.receive_text()
-            print(user_message)
             
             user_message = tables.Message(
                 conversation_id=conversation_id,
@@ -131,7 +129,6 @@ async def chat_endpoint(
                         function_args = tool_call['function']['arguments']
                         
                         if function_name == 'respond_directly':
-                            print("this is not the tool call")
                             response = ollama.chat(
                                 model='llama3.2',
                                 messages=ollama_messages,
@@ -142,37 +139,71 @@ async def chat_endpoint(
                                 content = chunk['message']['content']
                                 llm_response_content += content
                                 await websocket.send_text(content)
+                                await asyncio.sleep(0.01)
                             
                             await websocket.send_json({
-                                "type": "stream_end"
+                                "type": "stream_end",
                             }) 
                         
                         elif function_name == 'gen_query':
-                            print("this is the tool call")
                             function_to_call = available_functions[function_name]
                             tool_output = function_to_call(**function_args)
                             
+                            await websocket.send_json({
+                                "type": "think",
+                                "message": tool_output,
+                            })
+                            await asyncio.sleep(0.01)
+                             
                             url_list = make_custom_search(tool_output)
                             if not url_list:
-                                print("the list is empty")
                                 url_list = make_custom_search(function_args['query'])
                             
-                            total_summary = ''
+                            await websocket.send_json({
+                                "type": "think",
+                                "message": f"Currently analyzing {len(url_list)} webpages.",
+                            })
+                            await asyncio.sleep(0.01) 
+                            
                             contents_list = scrape_web(urls=url_list)
-                            
-                            print(url_list)
-                            
+                            text_content = []
                             for content in contents_list:
-                                text_summary = summary.summarize(content['texts'])
-                                total_summary += text_summary + '\n\n'
-                            
-                            print("Starting new generation")
-                            
-                            async for chunk in llm_generator.generate_summary(total_summary):
-                                await websocket.send_text(chunk)
+                                text_content.append(content['texts'])
+                                                        
+                            results = reranker.get_reranked_and_ordered_results(query=tool_output, docs=text_content)
+                            reranked_list = []
+                            for doc, score in results:
+                                reranked_list.append(doc)
                             
                             await websocket.send_json({
-                                "type": "stream_end"
+                                "type": "think",
+                                "message": "Fetching and reviewing articles",
+                            })
+                            await asyncio.sleep(0.01)
+                            
+                            total_summary = ''
+                            all_data = []
+                            for content in reranked_list:
+                                text_summary = summary.summarize(content)
+                                total_summary += text_summary + '\n\n'
+                                pair_data = {
+                                    'original': content,
+                                    'summarized': text_summary
+                                }
+                                all_data.append(pair_data)
+                            
+                            await websocket.send_json({
+                                "type": "think",
+                                "message": "Generating a structured response",
+                            })
+                            await asyncio.sleep(0.01)
+                                          
+                            async for chunk in llm_generator.generate_summary(total_summary):
+                                await websocket.send_text(chunk)
+                                await asyncio.sleep(0.01)
+                            
+                            await websocket.send_json({
+                                "type": "stream_end",
                             }) 
                             
             except ollama.ResponseError as e:

@@ -30,9 +30,13 @@ class WebSocketChatClient {
                 
                 if (data.type === 'stream_end'){
                     receivedData = ''
-                    this.stream_end()
-                    
-                } else{
+                    this.stream_end()  
+                } 
+                else if (data.type === 'think'){
+                    receivedData = ''
+                    console.log(data.message)
+                    this.thinking(data.message)
+                }else{
                     this.onMessageCallback(data);
                 }
             } catch (error) {
@@ -69,6 +73,26 @@ class WebSocketChatClient {
         } else {
             console.log("No element with ID 'markdownContent' found.");
         }
+    }
+
+    thinking(content){
+        const chatContainer = document.getElementById('chat-container');
+
+        if (!chatContainer) {
+            console.error('Chat container not found. Make sure an element with id "chat-container" exists.');
+            return;
+        }
+
+        const chatBox = document.createElement('div');
+        chatBox.classList.add('chat-box', 'thinking');
+
+        const paragraph = document.createElement('p');
+        paragraph.classList.add('content');
+        paragraph.id = 'markdownContent';
+        paragraph.textContent = content;
+
+        chatBox.appendChild(paragraph);
+        chatContainer.appendChild(chatBox);
     }
 
     /**
