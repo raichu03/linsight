@@ -53,4 +53,4 @@ python main.py
 ## License
 This project is licensed under the GNU GENERAL PUBLIC LICENSE v3.0. See the [LICENSE](LICENSE) file for details.
 
-Note: *This project is still being developed....*
+Note: *This project is still being developed.... I have only added the text context. In future I will add the image and video context.*
