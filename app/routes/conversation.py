@@ -181,16 +181,9 @@ async def chat_endpoint(
                             })
                             await asyncio.sleep(0.01)
                             
-                            total_summary = ''
-                            all_data = []
-                            for content in reranked_list:
-                                text_summary = summary.summarize(content)
-                                total_summary += text_summary + '\n\n'
-                                pair_data = {
-                                    'original': content,
-                                    'summarized': text_summary
-                                }
-                                all_data.append(pair_data)
+                            all_tasks = [summary.summarize(doc) for doc in reranked_list]
+                            summaries = await asyncio.gather(*all_tasks)
+                            total_summary = '/n'.join(summaries)
                             
                             await websocket.send_json({
                                 "type": "think",

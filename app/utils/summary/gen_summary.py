@@ -1,12 +1,12 @@
 import logging
-
+import asyncio
 import ollama
 
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S',
-    filename='logs/summary.log'
+    filename='logs/gen_summary.log'
 )
 
 class DocSummarizer:
@@ -68,7 +68,7 @@ class DocSummarizer:
         """
         return prompt.strip()
 
-    def summarize(self, document_text: str) -> str:
+    async def summarize(self, document_text: str) -> str:
         """
         Generate an extractive summary of the given document text.
         
@@ -109,6 +109,7 @@ class DocSummarizer:
                 messages=messages,
                 options={'temperature': self.temperature}
             )
+
 
             if not response or 'message' not in response or 'content' not in response['message']:
                 logging.error(f"Ollama API returned an unexpected response structure: {response}")
