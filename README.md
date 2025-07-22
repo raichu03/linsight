@@ -47,3 +47,10 @@ python main.py
 
 ## Usage
 - Enter your question in the input field and click the send or press the enter button.
+- The application will process your question and return the answer using the LLM model.
+- It might use Google Search to find relevant information if needed.
+
+## License
+This project is licensed under the GNU GENERAL PUBLIC LICENSE v3.0. See the [LICENSE](LICENSE) file for details.
+
+Note: *This project is still being developed....*
