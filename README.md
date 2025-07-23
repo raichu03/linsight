@@ -2,6 +2,9 @@
 
 Get insights into different topics with *`linsight`*. Ask questions and get the answers you need with the LLM-powered tool locally on your machine.
 
+### Here is the demo of the application:
+![Demo of the prooject](app/static/assets/videos/demo.gif)
+
 ## Features
 - **Local Execution**: Runs entirely on your machine, ensuring privacy and security.
 - **LLM-Powered**: Utilizes large language models to provide accurate and relevant answers
